@@ -1,0 +1,44 @@
+### model                                  # 模型相关配置
+model_name_or_path: /root/autodl-tmp/LLaMA-Factory/r1-qwen7b  # 指定预训练模型的本地路径或名称
+quantization_bit: 4                         # 模型量化时使用的位数（4位量化）
+quantization_method: bitsandbytes  # choices: [bitsandbytes (4/8), hqq (2/3/4/5/6/8), eetq (8)]  # 量化方法，选择 bitsandbytes
+trust_remote_code: true                     # 允许加载远程仓库中的代码，支持自定义模型实现
+use_unsloth: true                           # 启用 unsloth 功能（具体功能依赖于实现）
+
+### method                                 # 微调方法配置
+stage: sft                                  # 训练阶段为 SFT（有监督微调）
+do_train: true                              # 启用训练过程
+finetuning_type: lora                       # 微调类型选择 LoRA（低秩适配方法）
+lora_rank: 8                                # LoRA 中的秩参数，影响适配器的参数规模
+lora_target: all                            # 指定对所有模块进行 LoRA 微调
+report_to : wandb                          # 训练日志上报至 Weights & Biases (wandb)
+
+### dataset                                # 数据集配置
+dataset: med_o1                             # 数据集名称或标识符，使用 med_o1 数据集
+template: deepseek3                         # 数据模板，用于格式化或提示设计
+cutoff_len: 4096                            # 输入文本的最大长度，超过部分会被截断
+max_samples: 100000                         # 最大采样样本数量，限制训练时使用的数据量
+overwrite_cache: true                       # 是否覆盖已有的数据预处理缓存
+preprocessing_num_workers: 16               # 数据预处理时使用的并行线程数
+
+### output                                 # 输出和保存配置
+output_dir: saves/r1-7b                       # 模型和日志输出保存的目录
+logging_steps: 1                            # 每一步都记录日志
+save_steps: 500                             # 每 500 步保存一次模型检查点
+plot_loss: true                             # 是否绘制训练过程中损失值的曲线图
+overwrite_output_dir: true                   # 如果输出目录已存在，是否覆盖
+
+### train                                  # 训练过程配置
+per_device_train_batch_size: 24             # 每个设备（如 GPU）上的训练批量大小为 24
+gradient_accumulation_steps: 2              # 梯度累积步数，通过累积多步梯度来模拟更大的 batch size
+learning_rate: 1.0e-4                        # 初始学习率，控制参数更新步长
+num_train_epochs: 1.0                        # 总训练轮数设为 1 个完整周期
+lr_scheduler_type: cosine                   # 使用余弦退火调度策略调整学习率
+warmup_ratio: 0.1                           # 训练初期的学习率预热比例为 10%
+bf16: true                                 # 启用 bf16（Brain Floating Point 16）混合精度训练
+ddp_timeout: 180000000                      # 分布式训练的超时时间设置，防止因通信延迟中断训练
+### eval                                   # 评估相关配置（当前注释掉）
+# val_size: 0.1                             # 验证集所占比例为 10%
+# per_device_eval_batch_size: 1             # 每个设备上的验证批量大小为 1
+# eval_strategy: steps                      # 验证策略按步数进行评估
+# eval_steps: 500                           # 每 500 步进行一次验证评估
