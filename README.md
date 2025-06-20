@@ -20,13 +20,14 @@
 git clone --depth 1 https://github.com/hiyouga/LLaMA-Factory.git
 cd LLaMA-Factory
 pip install -e ".[torch,metrics]"
+pip install wandb unsloth
 ```
 ## 配置数据集
 - 将数据放到data目录下
 - 在data的data_info.json中注册数据集信息，添加如下信息
 ```bash
-  "DISC_small": {
-    "file_name": "DISC_small.json",
+  "med_o1": {
+    "file_name": "med_o1.json",
     "columns": {
       "prompt": "input",
       "response": "output"
@@ -36,23 +37,23 @@ pip install -e ".[torch,metrics]"
 ## 下载模型文件
 - 执行命令
 ```bash
-modelscope download --model Qwen/Qwen2.5-3B-Instruct --local_dir qwen2.5-3b-instruct
+modelscope download --model deepseek-ai/DeepSeek-R1-Distill-Qwen-7B --local_dir r1-qwen7b
 ```
 ## 配置训练yaml文件
-- yaml文件位于examples/train_lora/llama3_lora_sft.yaml
-- 配置代码块：llama3_lora_sft.yaml
+- yaml文件位于examples/train_qlora/llama3_lora_sft_otfq.yaml
+- 配置代码块：llama3_lora_sft_otfq.yaml
 ## 执行训练命令
 ```bash
-llamafactory-cli train examples/train_lora/llama3_lora_sft.yaml
+llamafactory-cli train examples/train_qlora/llama3_lora_sft_otfq.yaml
 ```
 ## 推理
 - 找到saves文件夹中想推理的checkpoint
 - 修改yaml文件，位于examples/inference/llama3_lora_sft.yaml
 ```bash
-model_name_or_path: qwen2.5-3b-instruct
-adapter_name_or_path: saves/qwen2.5-3b-instruct/lora/1_try/checkpoint-20
-template: qwen
+model_name_or_path: /root/autodl-tmp/LLaMA-Factory/r1-qwen7b
+adapter_name_or_path: LLaMA-Factory/saves/r1-7b/checkpoint-516（最好用绝对路径）
+template: deepseek3
 infer_backend: huggingface  # choices: [huggingface, vllm]
 trust_remote_code: true
 ```
-- 执行推理命令llamafactory-cli webchat examples/inference/llama3_lora_sft.yaml
+- 执行推理命令llamafactory-cli chat examples/inference/llama3_lora_sft.yaml
